@@ -1,0 +1,14 @@
+version: '3'
+services:
+  node:
+    image: 'cherima/develop-test:latest'
+    network_mode: host
+    volumes:
+      - '/opt/dante/node/develop/test/latest/config:/opt/dante/node/config'
+    command:
+      - 'npm run start'
+    logging:
+      driver: json-file
+      options:
+        max-size: 500m
+    container_name: develop-test

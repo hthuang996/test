@@ -4,20 +4,78 @@ use ink_lang as ink;
 
 #[ink::contract]
 mod flipper {
+    use ink_lang as ink;
+    use scale::{
+        Decode,
+        Encode,
+    };
+
+    #[derive(Encode, Decode, Debug, PartialEq, Eq, Copy, Clone)]
+    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+    pub enum Error {
+        NotOwner,
+        NotApproved,
+        TokenExists,
+        TokenNotFound,
+        CannotInsert,
+        CannotFetchValue,
+        NotAllowed,
+    }
+
     use ink_storage::{
-        traits::SpreadAllocate,
+        traits::{
+            SpreadAllocate,
+            SpreadLayout,
+            StorageLayout,
+            PackedLayout,
+        },
         Mapping,
     };
+
+    use ink_prelude::{
+        vec::Vec,
+        string::String,
+    };
+
+    type Byte = u8;
+    type Bytes = Vec<Byte>;
+
+    #[ink::trait_definition]
+    pub trait TestTrait {
+        #[ink(message)]
+        fn only_owner(&mut self) -> Result<(), Error>;
+        #[ink(message)]
+        fn param_test(&mut self) -> Result<DeriveTest, Error>;
+    }
+
+    /// Content structure
+    #[derive(SpreadAllocate, SpreadLayout, PackedLayout, Clone, Default, Decode, Encode)]
+    #[cfg_attr(feature = "std", derive(Debug, scale_info::TypeInfo, StorageLayout))]
+    struct Content {
+        contract: String,
+        action: String,
+        data: Bytes,
+    }
+
+    #[derive(SpreadAllocate, SpreadLayout, Clone, Decode, Encode)]
+    #[cfg_attr(feature = "std", derive(Debug, scale_info::TypeInfo, StorageLayout))]
+    pub struct DeriveTest {
+        content: Content,
+    }
 
     /// Defines the storage of your contract.
     /// Add new fields to the below struct in order
     /// to add new static storage fields to your contract.
     #[ink(storage)]
-    // #[derive(SpreadAllocate)]
+    #[derive(SpreadAllocate)]
     pub struct Flipper {
         /// Stores a single `bool` value on the storage.
+        owner: AccountId,
         value: bool,
-        map: Option<Mapping<u8, u8>>,
+        map: Mapping<u8, Vec<Content>>,
+        map1: Mapping<ink_prelude::string::String, Vec<Content>>,
+        v: Vec<Bytes>,
+        d_t: DeriveTest,
     }
 
     impl Flipper {
@@ -25,18 +83,14 @@ mod flipper {
         #[ink(constructor)]
         pub fn new(init_value: bool) -> Self {
             // let m = Mapping<u128, u128>::new();
-            Self {
-                value: init_value,
-                map: None,
-            }
+            ink_lang::utils::initialize_contract(|contract| {
+                Self::new_init(contract)
+            })
         }
 
-        /// Constructor that initializes the `bool` value to `false`.
-        ///
-        /// Constructors can delegate to other constructors.
-        #[ink(constructor)]
-        pub fn default() -> Self {
-            Self::new(Default::default())
+        fn new_init(&mut self) {
+            let caller = Self::env().caller();
+            self.owner = caller;
         }
 
         /// A message that can be called on instantiated contracts.
@@ -52,6 +106,66 @@ mod flipper {
         pub fn get(&self) -> bool {
             self.value
         }
+
+        fn owner_test1(&mut self) -> Result<(), Error> {
+            let caller = self.env().caller();
+            if self.owner != caller {
+                return Err(Error::NotOwner);
+            }
+            Ok(())
+        }
+
+        fn test_func(&mut self) -> Result<(), Error> {
+            let mut item: Vec<Content> = self.map.get(8).ok_or(Error::NotOwner)?;
+            let i: Content = Content::default();
+            item.push(i);
+            self.map.insert(8, &item);
+
+            Ok(())
+        }
+
+        #[ink(message)]
+        pub fn test_func2(&mut self) -> Result<(), Error> {
+            let s = String::from("asdf");
+            let mut item: Vec<Content> = self.map1.get(&s).ok_or(Error::NotOwner)?;
+            self.map1.insert(s, &item);
+
+            Ok(())
+        }
+
+        fn is_owner(&mut self) -> bool {
+            let caller = Self::env().caller();
+            if self.owner != caller {
+                return false;
+            }
+            true
+        }
+
+        /// Simply returns the current value of our `bool`.
+        #[ink(message)]
+        pub fn owner_test(&mut self) -> Result<(), Error> {
+            if !self.is_owner() {
+                return Err(Error::NotOwner);
+            }
+            Ok(())
+        }
+    }
+
+    impl TestTrait for Flipper {
+        /// Simply returns the current value of our `bool`.
+        #[ink(message)]
+        fn only_owner(&mut self) -> Result<(), Error> {
+            let caller = Self::env().caller();
+            if self.owner != caller {
+                return Err(Error::NotOwner);
+            }
+            Ok(())
+        }
+
+        #[ink(message)]
+        fn param_test(&mut self) -> Result<DeriveTest, Error> {
+            Ok(self.d_t.clone())
+        }
     }
 
     /// Unit tests in Rust are normally defined within such a `#[cfg(test)]`
@@ -65,13 +179,6 @@ mod flipper {
         /// Imports `ink_lang` so we can use `#[ink::test]`.
         use ink_lang as ink;
 
-        /// We test if the default constructor does its job.
-        #[ink::test]
-        fn default_works() {
-            let flipper = Flipper::default();
-            assert_eq!(flipper.get(), false);
-        }
-
         /// We test a simple use case of our contract.
         #[ink::test]
         fn it_works() {
@@ -79,6 +186,20 @@ mod flipper {
             assert_eq!(flipper.get(), false);
             flipper.flip();
             assert_eq!(flipper.get(), true);
+        }
+
+        /// We test a simple use case of our contract.
+        #[ink::test]
+        fn owner_works() {
+            let accounts =
+                ink_env::test::default_accounts::<ink_env::DefaultEnvironment>();
+            let mut flipper = Flipper::new(false);
+            set_caller(accounts.bob);
+            println!("{:?}", flipper.map.get(0));
+        }
+
+        fn set_caller(sender: AccountId) {
+            ink_env::test::set_caller::<ink_env::DefaultEnvironment>(sender);
         }
     }
 }

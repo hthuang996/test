@@ -10,6 +10,11 @@ mod flipper {
         Encode,
     };
 
+    use ink_primitives::{
+        Key,
+        KeyPtr,
+    };
+
     #[derive(Encode, Decode, Debug, PartialEq, Eq, Copy, Clone)]
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
     pub enum Error {
@@ -28,6 +33,7 @@ mod flipper {
             SpreadLayout,
             StorageLayout,
             PackedLayout,
+            PackedAllocate,
         },
         Mapping,
     };
@@ -57,10 +63,24 @@ mod flipper {
         data: Bytes,
     }
 
-    #[derive(SpreadAllocate, SpreadLayout, Clone, Decode, Encode)]
+    impl PackedAllocate for Content {
+        fn allocate_packed(&mut self, at: &Key) {
+            PackedAllocate::allocate_packed(&mut self.contract, at);
+            PackedAllocate::allocate_packed(&mut self.action, at);
+            PackedAllocate::allocate_packed(&mut self.data, at);
+        }
+    }
+
+    #[derive(SpreadAllocate, PackedLayout, SpreadLayout, Clone, Decode, Encode)]
     #[cfg_attr(feature = "std", derive(Debug, scale_info::TypeInfo, StorageLayout))]
     pub struct DeriveTest {
         content: Content,
+    }
+
+    impl PackedAllocate for DeriveTest {
+        fn allocate_packed(&mut self, at: &Key) {
+            PackedAllocate::allocate_packed(&mut self.content, at)
+        }
     }
 
     /// Defines the storage of your contract.
@@ -75,7 +95,7 @@ mod flipper {
         map: Mapping<u8, Vec<Content>>,
         map1: Mapping<ink_prelude::string::String, Vec<Content>>,
         v: Vec<Bytes>,
-        d_t: DeriveTest,
+        d_t: Vec<DeriveTest>,
     }
 
     impl Flipper {
@@ -164,7 +184,7 @@ mod flipper {
 
         #[ink(message)]
         fn param_test(&mut self) -> Result<DeriveTest, Error> {
-            Ok(self.d_t.clone())
+            Err(Error::NotOwner)
         }
     }
 

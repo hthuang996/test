@@ -68,9 +68,9 @@ mod flipper {
 
     impl PackedAllocate for Content {
         fn allocate_packed(&mut self, at: &Key) {
-            PackedAllocate::allocate_packed(&mut self.contract, at);
-            PackedAllocate::allocate_packed(&mut self.action, at);
-            PackedAllocate::allocate_packed(&mut self.data, at);
+            // PackedAllocate::allocate_packed(&mut self.contract, at);
+            // PackedAllocate::allocate_packed(&mut self.action, at);
+            // PackedAllocate::allocate_packed(&mut self.data, at);
         }
     }
 
@@ -217,6 +217,26 @@ mod flipper {
         #[ink(message)]
         pub fn option_get(& self, o: Option<u8>) -> Option<u8> {
             o
+        }
+
+        #[ink(message)]
+        pub fn custom_vec_add(&mut self, v: DeriveTest) {
+            self.d_t.push(v);
+        }
+
+        #[ink(message)]
+        pub fn custom_vec_get(& self, i: u32) -> DeriveTest {
+            self.d_t[usize::try_from(i).unwrap()].clone()
+        }
+
+        #[ink(message)]
+        pub fn custom_vec_length(& self) -> u32 {
+            self.d_t.len() as u32
+        }
+
+        #[ink(message)]
+        pub fn string_to_bytes(& self, a: String) -> Bytes {
+            Bytes::from(a)
         }
     }
 

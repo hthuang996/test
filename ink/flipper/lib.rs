@@ -1,5 +1,8 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
+const CROSS_CONTRACT_ADDRESS: &str = "X";
+const SEND_MESSAGE_SELECTOR: [u8; 4] = [0; 4];
+
 use ink_lang as ink;
 
 #[ink::contract]
@@ -51,7 +54,7 @@ mod flipper {
     /// Content structure
     #[derive(SpreadAllocate, SpreadLayout, PackedLayout, Clone, Default, Decode, Encode)]
     #[cfg_attr(feature = "std", derive(Debug, scale_info::TypeInfo, StorageLayout))]
-    struct Content {
+    pub struct Content {
         contract: String,
         action: String,
         data: Bytes,
@@ -72,6 +75,7 @@ mod flipper {
         /// Stores a single `bool` value on the storage.
         owner: AccountId,
         value: bool,
+        str_value: String,
         map: Mapping<u8, Vec<Content>>,
         map1: Mapping<ink_prelude::string::String, Vec<Content>>,
         v: Vec<Bytes>,
@@ -115,13 +119,34 @@ mod flipper {
             Ok(())
         }
 
-        fn test_func(&mut self) -> Result<(), Error> {
-            let mut item: Vec<Content> = self.map.get(8).ok_or(Error::NotOwner)?;
+        #[ink(message)]
+        pub fn test_func(&mut self) -> Result<(), Error> {
+            let mut item: Vec<Content> = self.map.get(8).unwrap_or(Vec::<Content>::new());
             let i: Content = Content::default();
             item.push(i);
             self.map.insert(8, &item);
 
             Ok(())
+        }
+
+        #[ink(message)]
+        pub fn test_modify(&mut self, i: u32, contract: String) -> Result<(), Error> {
+            let mut item: Vec<Content> = self.map.get(8).ok_or(Error::NotOwner)?;
+            let iu = usize::try_from(i).unwrap();
+            let mut content: &mut Content = item.get_mut(iu).ok_or(Error::NotApproved)?;
+            content.contract = contract;
+            // item.insert(iu, content.clone());
+            self.map.insert(8, &item);
+
+            Ok(())
+        }
+
+        #[ink(message)]
+        pub fn test_get(& self, i: u32) -> Result<Content, Error> {
+            let mut item: Vec<Content> = self.map.get(8).ok_or(Error::NotOwner)?;
+            let iu = usize::try_from(i).unwrap();
+            let content: &Content = item.get(usize::try_from(iu).unwrap()).ok_or(Error::NotApproved)?;
+            Ok(content.clone())
         }
 
         #[ink(message)]
@@ -148,6 +173,30 @@ mod flipper {
                 return Err(Error::NotOwner);
             }
             Ok(())
+        }
+
+        /// Simply returns the current value of our `bool`.
+        #[ink(message)]
+        pub fn get_str_value(& self) -> String {
+            self.str_value.clone()
+        }
+
+        /// Simply returns the current value of our `bool`.
+        #[ink(message)]
+        pub fn set_str_value(&mut self, value: String) {
+            self.str_value = value;
+        }
+
+        /// Simply returns the current value of our `bool`.
+        #[ink(message)]
+        pub fn enum_get(& self, e: Error) -> Result<(), Error> {
+            Err(e)
+        }
+
+        /// Simply returns the current value of our `bool`.
+        #[ink(message)]
+        pub fn option_get(& self, o: Option<u8>) -> Option<u8> {
+            o
         }
     }
 

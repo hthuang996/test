@@ -86,6 +86,13 @@ mod flipper {
         }
     }
 
+    #[ink(event)]
+    pub struct Transferred {
+        // from: Option<AccountId>,
+        // to: Option<AccountId>,
+        value: Balance,
+    }
+
     /// Defines the storage of your contract.
     /// Add new fields to the below struct in order
     /// to add new static storage fields to your contract.
@@ -100,6 +107,8 @@ mod flipper {
         map1: Mapping<ink_prelude::string::String, Vec<Content>>,
         v: Vec<Bytes>,
         d_t: Vec<DeriveTest>,
+        message: u8,
+        message2: u8,
     }
 
     impl Flipper {
@@ -237,6 +246,71 @@ mod flipper {
         #[ink(message)]
         pub fn string_to_bytes(& self, a: String) -> Bytes {
             Bytes::from(a)
+        }
+
+        #[ink(message)]
+        pub fn emit_event(&mut self) {
+            let from = self.env().caller();
+            // implementation hidden
+            self.env().emit_event(Transferred {
+                // from: Some(from),
+                // to: Some(from),
+                value: 10,
+            });
+        }
+
+        #[ink(message)]
+        pub fn send_message(&mut self, addr1: AccountId, addr2: AccountId, m: u8) {
+            ink_env::call::build_call::<ink_env::DefaultEnvironment>()
+                .call_type(
+                    ink_env::call::Call::new()
+                        .callee(addr1)
+                        .gas_limit(0)
+                        .transferred_value(0))
+                .exec_input(
+                    // call receive_message
+                    ink_env::call::ExecutionInput::new(ink_env::call::Selector::new([0x3a, 0x6e, 0x96, 0x96]))
+                    .push_arg(addr2)
+                    .push_arg(m)
+                )
+                .returns::<()>()
+                .fire().
+                unwrap();
+        }
+
+        #[ink(message)]
+        pub fn receive_message(&mut self, addr: AccountId, i: u8) {
+            self.message = i;
+            ink_env::call::build_call::<ink_env::DefaultEnvironment>()
+                .call_type(
+                    ink_env::call::Call::new()
+                        .callee(addr)
+                        .gas_limit(0)
+                        .transferred_value(0))
+                .exec_input(
+                    // call receive_message2
+                    ink_env::call::ExecutionInput::new(ink_env::call::Selector::new([0x03, 0x0e, 0x11, 0xd0]))
+                    .push_arg(i)
+                )
+                .returns::<()>()
+                .fire().
+                unwrap();
+        }
+
+        #[ink(message)]
+        pub fn receive_message2(&mut self, i: u8) {
+            self.message = i;
+        }
+
+        #[ink(message)]
+        pub fn get_message(& self) -> u8 {
+            self.message
+        }
+
+        #[ink(message)]
+        pub fn get_message_mock(& self) -> u8 {
+            let i = 12;
+            i            
         }
     }
 

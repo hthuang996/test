@@ -76,14 +76,34 @@ mod flipper {
 
     #[derive(SpreadAllocate, PackedLayout, SpreadLayout, Clone, Decode, Encode)]
     #[cfg_attr(feature = "std", derive(Debug, scale_info::TypeInfo, StorageLayout))]
+    pub struct ShowTest {
+        test_id: u8,
+    }
+
+    #[derive(SpreadAllocate, PackedLayout, SpreadLayout, Clone, Decode, Encode)]
+    #[cfg_attr(feature = "std", derive(Debug, scale_info::TypeInfo, StorageLayout))]
     pub struct DeriveTest {
         content: Content,
+        test_id: u8,
     }
 
     impl PackedAllocate for DeriveTest {
         fn allocate_packed(&mut self, at: &Key) {
-            PackedAllocate::allocate_packed(&mut self.content, at)
+            PackedAllocate::allocate_packed(&mut self.content, at);
+            PackedAllocate::allocate_packed(&mut self.test_id, at)
         }
+    }
+
+    #[ink(event)]
+    pub struct Transferred {
+        // #[ink(topic)]
+        // from: Option<AccountId>,
+
+        // #[ink(topic)]
+        // to: Option<AccountId>,
+
+        // #[ink(topic)]
+        // value: Balance,
     }
 
     /// Defines the storage of your contract.
@@ -220,6 +240,10 @@ mod flipper {
         }
 
         #[ink(message)]
+        pub fn show_test_add(&mut self, v: ShowTest) {
+        }
+
+        #[ink(message)]
         pub fn custom_vec_add(&mut self, v: DeriveTest) {
             self.d_t.push(v);
         }
@@ -237,6 +261,18 @@ mod flipper {
         #[ink(message)]
         pub fn string_to_bytes(& self, a: String) -> Bytes {
             Bytes::from(a)
+        }
+
+        #[ink(message)]
+        pub fn emit_event(&mut self) {
+            let from = self.env().caller();
+
+            self.env().emit_event(Transferred {
+                // from: Some(from),
+                // to: Some(from),
+                // value: 10
+            });
+        
         }
     }
 

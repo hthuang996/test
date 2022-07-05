@@ -88,8 +88,8 @@ mod flipper {
 
     #[ink(event)]
     pub struct Transferred {
-        // from: Option<AccountId>,
-        // to: Option<AccountId>,
+        from: Option<AccountId>,
+        to: Option<AccountId>,
         value: Balance,
     }
 
@@ -273,9 +273,10 @@ mod flipper {
                     .push_arg(addr2)
                     .push_arg(m)
                 )
+                .call_flags(ink_env::CallFlags::default().set_allow_reentry(true))
                 .returns::<()>()
-                .fire().
-                unwrap();
+                .fire()
+                .unwrap();
         }
 
         #[ink(message)]
@@ -293,13 +294,22 @@ mod flipper {
                     .push_arg(i)
                 )
                 .returns::<()>()
-                .fire().
-                unwrap();
+                .fire()
+                .unwrap();
         }
 
         #[ink(message)]
         pub fn receive_message2(&mut self, i: u8) {
             self.message = i;
+
+            let from = self.env().caller();
+            let to = self.env().account_id();
+            // implementation hidden
+            self.env().emit_event(Transferred {
+                from: Some(from),
+                to: Some(to),
+                value: 10,
+            });
         }
 
         #[ink(message)]

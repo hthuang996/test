@@ -14,11 +14,13 @@ cargo run
 ### Client
 - Request a question
 ```
+cd server
 cargo run -- -s
 ```
 
 - Submit the answer
 ```
+cd client
 cargo run -- -a <ANSWER>
 ```
 `<ANSWER>` is a number.

@@ -1,27 +1,26 @@
 use serde::{Deserialize, Serialize};
-use serde_json::Result;
 
-pub mod ServerToClientMsg {
-    pub const RequestQuestion: u8 = 1;
-    pub const SubmitAnswer: u8 = 2;
+pub mod client_to_server_msg {
+    pub const REQUEST_QUESTION: u8 = 1;
+    pub const SUBMIT_ANSWER: u8 = 2;
 }
 
-pub mod ClientToServerMsg {
-    pub const RespondQuestion: u8 = 1;
-    pub const RespondResult: u8 = 2;
+pub mod server_to_client_msg {
+    pub const RESPOND_QUESTION: u8 = 1;
+    pub const RESPOND_RESULT: u8 = 2;
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct SubmittedAnswer {
-    answer: u32,
+    pub answer: u32,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct ResponseQuestion {
-    question: [u32; 4],
+    pub question: [u32; 4],
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct ResponseResult {
-    result: bool,
+    pub result: bool,
 }

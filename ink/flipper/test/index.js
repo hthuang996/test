@@ -33,7 +33,7 @@ async function query() {
   //                                         {"name": "Nika", "age": 18, "phones": ["123", "456"]});
 
   // const calleeEncode = flipperABI.findMessage('encode_user_defined_struct').toU8a([{"name": "Nika", "age": 18, "phones": ["123", "456"]}]);
-  const { gasConsumed, result, output } = await flipperContract.query['enumGet'](sender.address, {value, gasLimit }, 'NotOwner');
+  const { gasConsumed, result, output } = await flipperContract.query['testBytes'](sender.address, {value, gasLimit }, '0x1234');
   
   // The actual result from RPC as `ContractExecResult`
   console.log(result.toHuman());
@@ -52,4 +52,27 @@ async function query() {
   }
 }
 
-query()
+async function call() {
+  // We will use these values for the execution
+  const value = 0; // only useful on isPayable messages
+  const gasLimit = -1;
+
+  // Send the transaction, like elsewhere this is a normal extrinsic
+  // with the same rules as applied in the API (As with the read example,
+  // additional params, if required can follow - here only one is needed)
+
+  await flipperContract.tx
+    ['testBytes']({ value, gasLimit }, '0x1234')
+    .signAndSend(sender, (result) => {
+      console.log('result', result.isInBlock, result.isFinalized, result.isError, result.isWarning);
+      if (result.status.isInBlock) {
+        console.log('in a block');
+        // console.log(result);
+      } else if (result.status.isFinalized) {
+        console.log('finalized');
+      }
+    });
+}
+
+// query()
+call()

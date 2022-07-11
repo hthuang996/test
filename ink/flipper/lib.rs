@@ -4,6 +4,7 @@ const CROSS_CONTRACT_ADDRESS: &str = "X";
 const SEND_MESSAGE_SELECTOR: [u8; 4] = [0; 4];
 
 use ink_lang as ink;
+mod test_trait;
 
 #[ink::contract]
 mod flipper {
@@ -17,18 +18,6 @@ mod flipper {
         Key,
         KeyPtr,
     };
-
-    #[derive(Encode, Decode, Debug, PartialEq, Eq, Copy, Clone)]
-    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
-    pub enum Error {
-        NotOwner,
-        NotApproved,
-        TokenExists,
-        TokenNotFound,
-        CannotInsert,
-        CannotFetchValue,
-        NotAllowed,
-    }
 
     use ink_storage::{
         traits::{
@@ -44,6 +33,11 @@ mod flipper {
     use ink_prelude::{
         vec::Vec,
         string::String,
+    };
+
+    use super::test_trait::{
+        Ownable,
+        Error,
     };
 
     type Byte = u8;
@@ -104,9 +98,6 @@ mod flipper {
 
         // #[ink(topic)]
         // value: Balance,
-        from: Option<AccountId>,
-        to: Option<AccountId>,
-        value: Balance,
     }
 
     /// Defines the storage of your contract.
@@ -117,6 +108,7 @@ mod flipper {
     pub struct Flipper {
         /// Stores a single `bool` value on the storage.
         owner: AccountId,
+        owner2: Option<AccountId>,
         value: bool,
         str_value: String,
         map: Mapping<u8, Vec<Content>>,
@@ -125,6 +117,7 @@ mod flipper {
         d_t: Vec<DeriveTest>,
         message: u8,
         message2: u8,
+        ob: Option<ink_prelude::vec::Vec<u8>>,
     }
 
     impl Flipper {
@@ -322,9 +315,9 @@ mod flipper {
             let to = self.env().account_id();
             // implementation hidden
             self.env().emit_event(Transferred {
-                from: Some(from),
-                to: Some(to),
-                value: 10,
+                // from: Some(from),
+                // to: Some(to),
+                // value: 10,
             });
         }
 
@@ -348,6 +341,12 @@ mod flipper {
                 return Err(Error::NotOwner);
             }
             Ok(())
+        }
+
+        /// Simply returns the current value of our `bool`.
+        #[ink(message)]
+        pub fn return_null_test(&mut self) {
+            return;
         }
 
         /// Simply returns the current value of our `bool`.
@@ -409,6 +408,21 @@ mod flipper {
             });
         
         }
+
+        /// Test
+        #[ink(message)]
+        pub fn test_bytes(&mut self, session: Option<ink_prelude::vec::Vec<u8>>) -> Result<(), ()> {
+            self.ob = session;
+            Ok(())
+        }
+        
+        #[ink(message)]
+        pub fn get_bytes(&mut self) -> Option<ink_prelude::vec::Vec<u8>> {
+            struct AA {
+                a: u8
+            }
+            self.ob.clone()
+        }
         // #[ink(message)]
         // pub fn get_message_mock(& self) -> u8 {
         //     let i = 12;
@@ -430,6 +444,34 @@ mod flipper {
         #[ink(message)]
         fn param_test(&mut self) -> Result<DeriveTest, Error> {
             Err(Error::NotOwner)
+        }
+    }
+
+    impl Ownable for Flipper {
+        /// Returns the account id of the current owner
+        #[ink(message)]
+        fn owner(&self) -> Option<AccountId> {
+            self.owner2
+        }
+
+        /// Renounces ownership of the contract
+        #[ink(message)]
+        fn renounce_ownership(&mut self) -> Result<(), Error> {
+            self.only_owner()?;
+
+            self.owner2 = None;
+
+            Ok(())
+        }
+
+        /// Transfer ownership to a new account id
+        #[ink(message)]
+        fn transfer_ownership(&mut self, new_owner: AccountId) -> Result<(), Error> {
+            self.only_owner()?;
+
+            self.owner2 = Some(new_owner);
+
+            Ok(())
         }
     }
 

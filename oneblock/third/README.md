@@ -24,3 +24,16 @@ cd client
 cargo run -- -a <ANSWER>
 ```
 `<ANSWER>` is a number.
+
+## Screenshots
+- Request question
+- 
+![图片](https://user-images.githubusercontent.com/83948501/178004796-502a1eea-d8eb-4297-b8ba-e4c9b89726d8.png)
+
+-- Submit question
+
+![图片](https://user-images.githubusercontent.com/83948501/178004996-f6834175-15aa-4f8c-8ea2-db885e4b862e.png)
+
+- Server
+- 
+![图片](https://user-images.githubusercontent.com/83948501/178005059-3b23b0b0-38e9-4e13-a0a3-1efba7ee966e.png)

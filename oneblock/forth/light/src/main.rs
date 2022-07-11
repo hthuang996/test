@@ -4,11 +4,11 @@ enum Light {
     GREEN(u8),
 }
 
-trait signal {
+trait Signal {
     fn get_time(light: Light) -> u8;
 }
 
-impl signal for Light {
+impl Signal for Light {
     fn get_time(light: Light) -> u8 {
         match light {
             Light::RED(x) => return x,

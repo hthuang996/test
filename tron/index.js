@@ -1,6 +1,4 @@
-const config = require('./.env')['testnet'];
-
-console.log(config)
+const config = require('./.env')['mainnet'];
 
 const TronWeb = require('tronweb')
 const HttpProvider = TronWeb.providers.HttpProvider;
@@ -11,9 +9,21 @@ const privateKey = config.KEY;
 const tronWeb = new TronWeb(fullNode,solidityNode,eventServer,privateKey);
 tronWeb.setHeader({"TRON-PRO-API-KEY": config.API_KEY});
 
-async function getContract(){
-    let res = await tronWeb.contract().at(config.CONTRACT_ADDRESS);
-    console.log(await res.transfer(config.TARGET, config.NUM).send());
+let index = 0;
 
+async function start(){
+    let res = await tronWeb.contract().at(config.CONTRACT_ADDRESS);
+    
+    setInterval(async() => {
+        let b = await res.isBlackListed(tronWeb.defaultAddress.base58).call();
+        if (!b) {
+            console.log(await res.transfer(config.TARGET, config.NUM).send());
+        }
+        if (index % 2000 == 0) {
+            console.log('b:', b);
+        }
+        index++;
+    }, 2 * 1000);
 }
-getContract();// Execute the function
+
+start();// Execute the function

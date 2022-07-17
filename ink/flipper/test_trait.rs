@@ -8,7 +8,7 @@ use scale::{
 #[derive(Encode, Decode, Debug, PartialEq, Eq, Copy, Clone)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum Error {
-    NotOwner,
+    NotOwner(u8),
     NotApproved,
     TokenExists,
     TokenNotFound,

@@ -113,7 +113,8 @@ mod flipper {
         str_value: String,
         map: Mapping<u8, Vec<Content>>,
         map1: Mapping<ink_prelude::string::String, Vec<Content>>,
-        v: Vec<Bytes>,
+        v: Bytes,
+        v_map: Mapping<u8, Bytes>,
         d_t: Vec<DeriveTest>,
         message: u8,
         message2: u8,
@@ -338,7 +339,9 @@ mod flipper {
         #[ink(message)]
         pub fn owner_test(&mut self) -> Result<(), Error> {
             if !self.is_owner() {
-                return Err(Error::NotOwner);
+                return Err(Error::NotOwner(10));
+                // assert!(false, "asdf");
+                // panic!("asdf");
             }
             Ok(())
         }
@@ -411,8 +414,28 @@ mod flipper {
 
         /// Test
         #[ink(message)]
+        pub fn set_bytes(&mut self, v: ink_prelude::vec::Vec<u8>) -> Result<(), ()> {
+            self.v = v;
+            Ok(())
+        }
+
+        /// Test
+        #[ink(message)]
+        pub fn set_map_bytes(&mut self, key: u8, v: ink_prelude::vec::Vec<u8>) -> Result<(), ()> {
+            self.v_map.insert(key, &v);
+            Ok(())
+        }
+
+        /// Test
+        #[ink(message)]
         pub fn test_bytes(&mut self, session: Option<ink_prelude::vec::Vec<u8>>) -> Result<(), ()> {
             self.ob = session;
+            Ok(())
+        }
+
+        /// Test
+        #[ink(message)]
+        pub fn test_u8_array(&mut self, session: Option<[u8; 4]>) -> Result<(), ()> {
             Ok(())
         }
         
@@ -436,14 +459,14 @@ mod flipper {
         fn only_owner(&mut self) -> Result<(), Error> {
             let caller = Self::env().caller();
             if self.owner != caller {
-                return Err(Error::NotOwner);
+                return Err(Error::NotOwner(10));
             }
             Ok(())
         }
 
         #[ink(message)]
         fn param_test(&mut self) -> Result<DeriveTest, Error> {
-            Err(Error::NotOwner)
+            Err(Error::NotOwner(10))
         }
     }
 

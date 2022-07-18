@@ -102,7 +102,7 @@ pub mod pallet {
 			let sender = ensure_signed(origin)?;
 
 			// Can not transfer the claim to self.
-            ensure!(sender == receiver, Error::<T>::NotAbleToTransferToSelf);
+            ensure!(sender != receiver, Error::<T>::NotAbleToTransferToSelf);
 
             // Check if the claim exists.
             let (owner, _) = Proofs::<T>::get(&claim).ok_or(Error::<T>::ClaimNotExist)?;

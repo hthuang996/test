@@ -36,6 +36,7 @@ pub mod pallet {
 		/// parameters. [something, who]
 		ClaimCreated(T::AccountId, Vec::<u8>),
 		ClaimRevoked(T::AccountId, Vec::<u8>),
+		ClaimTransferred(T::AccountId, T::AccountId, Vec::<u8>),
 	}
 
     // Errors inform users that something went wrong.
@@ -47,6 +48,7 @@ pub mod pallet {
 		ClaimNotExist,
 		/// There have be doc.
 		OnlyOwnerCanRevoke,
+		NotAbleToTransferToSelf,
 	}
 
     #[pallet::hooks]
@@ -91,6 +93,30 @@ pub mod pallet {
             Proofs::<T>::remove(&claim);
 
             Self::deposit_event(Event::ClaimRevoked(owner, claim));
+
+			Ok(())
+		}
+
+		#[pallet::weight(0)]
+		pub fn transfer_claim(origin: OriginFor<T>, receiver: T::AccountId, claim: Vec<u8>) -> DispatchResult {
+			let sender = ensure_signed(origin)?;
+
+			// Can not transfer the claim to self.
+            ensure!(sender == receiver, Error::<T>::NotAbleToTransferToSelf);
+
+            // Check if the claim exists.
+            let (owner, _) = Proofs::<T>::get(&claim).ok_or(Error::<T>::ClaimNotExist)?;
+
+            ensure!(owner == sender, Error::<T>::OnlyOwnerCanRevoke);
+
+            // Update storage
+            Proofs::<T>::remove(&claim);
+			<Proofs<T>>::insert(
+                &claim,
+                (receiver.clone(), frame_system::Pallet::<T>::block_number())
+            );
+
+            Self::deposit_event(Event::ClaimTransferred(owner, receiver, claim));
 
 			Ok(())
 		}

@@ -40,6 +40,18 @@ mod flipper {
         Error,
     };
 
+    #[derive(Encode, Decode, Debug, PartialEq, Eq, Copy, Clone)]
+    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+    pub enum Error1 {
+        NotOwner2(u8),
+        NotApproved2,
+        TokenExists2,
+        TokenNotFound2,
+        CannotInsert2,
+        CannotFetchValue2,
+        NotAllowed2,
+    }
+
     type Byte = u8;
     type Bytes = Vec<Byte>;
 
@@ -290,9 +302,9 @@ mod flipper {
         }
 
         #[ink(message)]
-        pub fn receive_message(&mut self, addr: AccountId, i: u8) {
+        pub fn receive_message(&mut self, addr: AccountId, i: u8) -> Result<(), Error1> {
             self.message = i;
-            ink_env::call::build_call::<ink_env::DefaultEnvironment>()
+            let ret: Result<(), Error1> = ink_env::call::build_call::<ink_env::DefaultEnvironment>()
                 .call_type(
                     ink_env::call::Call::new()
                         .callee(addr)
@@ -303,13 +315,15 @@ mod flipper {
                     ink_env::call::ExecutionInput::new(ink_env::call::Selector::new([0x03, 0x0e, 0x11, 0xd0]))
                     .push_arg(i)
                 )
-                .returns::<()>()
+                .returns::<Result<(), Error1>>()
                 .fire()
                 .unwrap();
+
+                ret
         }
 
         #[ink(message)]
-        pub fn receive_message2(&mut self, i: u8) {
+        pub fn receive_message2(&mut self, i: u8) -> Result<(), Error> {
             self.message = i;
 
             let from = self.env().caller();
@@ -320,6 +334,8 @@ mod flipper {
                 // to: Some(to),
                 // value: 10,
             });
+
+            Err(Error::NotApproved)
         }
 
         #[ink(message)]

@@ -33,7 +33,7 @@ async function query() {
   //                                         {"name": "Nika", "age": 18, "phones": ["123", "456"]});
 
   // const calleeEncode = flipperABI.findMessage('encode_user_defined_struct').toU8a([{"name": "Nika", "age": 18, "phones": ["123", "456"]}]);
-  const { gasConsumed, result, output } = await flipperContract.query['testU8Array'](sender.address, {value, gasLimit }, [1,2,3,4]);
+  const { gasConsumed, result, output } = await flipperContract.query['isOwner'](sender.address, {value, gasLimit });
   
   // The actual result from RPC as `ContractExecResult`
   console.log(result.toHuman());
@@ -41,7 +41,7 @@ async function query() {
   // gas consumed
   console.log(gasConsumed.toHuman());
 
-  console.log(output.toString());
+  console.log(output, output.toString());
 
   // check if the call was successful
   if (result.isOk) {

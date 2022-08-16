@@ -343,7 +343,8 @@ mod flipper {
             self.message
         }
 
-        fn is_owner(&mut self) -> bool {
+        #[ink(message)]
+        pub fn is_owner(& self) -> bool {
             let caller = Self::env().caller();
             if self.owner != caller {
                 return false;

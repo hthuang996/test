@@ -146,140 +146,23 @@ mod flipper {
         fn new_init(&mut self) {
             let caller = Self::env().caller();
             self.owner = caller;
+            self.str_value = String::from("黄海涛");
         }
 
-        /// A message that can be called on instantiated contracts.
-        /// This one flips the value of the stored `bool` from `true`
-        /// to `false` and vice versa.
-        // #[ink(message)]
-        // pub fn flip(&mut self) {
-        //     self.value = !self.value;
-        // }
+        #[ink(message)]
+        pub fn set_string_value(&mut self, s_value: String) {
+            self.str_value = s_value;
+        }
 
-        // /// Simply returns the current value of our `bool`.
-        // #[ink(message)]
-        // pub fn get(&self) -> bool {
-        //     self.value
-        // }
+        #[ink(message)]
+        pub fn get_string_value(& self) -> String {
+            self.str_value.clone()
+        }
 
-        // fn owner_test1(&mut self) -> Result<(), Error> {
-        //     let caller = self.env().caller();
-        //     if self.owner != caller {
-        //         return Err(Error::NotOwner);
-        //     }
-        //     Ok(())
-        // }
-
-        // #[ink(message)]
-        // pub fn test_func(&mut self) -> Result<(), Error> {
-        //     let mut item: Vec<Content> = self.map.get(8).unwrap_or(Vec::<Content>::new());
-        //     let i: Content = Content::default();
-        //     item.push(i);
-        //     self.map.insert(8, &item);
-
-        //     Ok(())
-        // }
-
-        // #[ink(message)]
-        // pub fn test_modify(&mut self, i: u32, contract: String) -> Result<(), Error> {
-        //     let mut item: Vec<Content> = self.map.get(8).ok_or(Error::NotOwner)?;
-        //     let iu = usize::try_from(i).unwrap();
-        //     let mut content: &mut Content = item.get_mut(iu).ok_or(Error::NotApproved)?;
-        //     content.contract = contract;
-        //     // item.insert(iu, content.clone());
-        //     self.map.insert(8, &item);
-
-        //     Ok(())
-        // }
-
-        // #[ink(message)]
-        // pub fn test_get(& self, i: u32) -> Result<Content, Error> {
-        //     let mut item: Vec<Content> = self.map.get(8).ok_or(Error::NotOwner)?;
-        //     let iu = usize::try_from(i).unwrap();
-        //     let content: &Content = item.get(usize::try_from(iu).unwrap()).ok_or(Error::NotApproved)?;
-        //     Ok(content.clone())
-        // }
-
-        // #[ink(message)]
-        // pub fn test_func2(&mut self) -> Result<(), Error> {
-        //     let s = String::from("asdf");
-        //     let mut item: Vec<Content> = self.map1.get(&s).ok_or(Error::NotOwner)?;
-        //     self.map1.insert(s, &item);
-
-        //     Ok(())
-        // }
-
-        // fn is_owner(&mut self) -> bool {
-        //     let caller = Self::env().caller();
-        //     if self.owner != caller {
-        //         return false;
-        //     }
-        //     true
-        // }
-
-        // /// Simply returns the current value of our `bool`.
-        // #[ink(message)]
-        // pub fn owner_test(&mut self) -> Result<(), Error> {
-        //     if !self.is_owner() {
-        //         return Err(Error::NotOwner);
-        //     }
-        //     Ok(())
-        // }
-
-        // /// Simply returns the current value of our `bool`.
-        // #[ink(message)]
-        // pub fn get_str_value(& self) -> String {
-        //     self.str_value.clone()
-        // }
-
-        // /// Simply returns the current value of our `bool`.
-        // #[ink(message)]
-        // pub fn set_str_value(&mut self, value: String) {
-        //     self.str_value = value;
-        // }
-
-        // /// Simply returns the current value of our `bool`.
-        // #[ink(message)]
-        // pub fn enum_get(& self, e: Error) -> Result<(), Error> {
-        //     Err(e)
-        // }
-
-        // /// Simply returns the current value of our `bool`.
-        // #[ink(message)]
-        // pub fn option_get(& self, o: Option<u8>) -> Option<u8> {
-        //     o
-        // }
-
-        // #[ink(message)]
-        // pub fn custom_vec_add(&mut self, v: DeriveTest) {
-        //     self.d_t.push(v);
-        // }
-
-        // #[ink(message)]
-        // pub fn custom_vec_get(& self, i: u32) -> DeriveTest {
-        //     self.d_t[usize::try_from(i).unwrap()].clone()
-        // }
-
-        // #[ink(message)]
-        // pub fn custom_vec_length(& self) -> u32 {
-        //     self.d_t.len() as u32
-        // }
-
-        // #[ink(message)]
-        // pub fn string_to_bytes(& self, a: String) -> Bytes {
-        //     Bytes::from(a)
-        // }
-
-        // #[ink(message)]
-        // pub fn emit_event(&mut self) {
-        //     let from = self.env().caller();
-        //     // implementation hidden
-        //     self.env().emit_event(Transferred {
-        //         // from: Some(from),
-        //         // to: Some(from),
-        //         value: 10,
-        //     });
-        // }
+        #[ink(message)]
+        pub fn get_string_value_bytes(& self) -> Bytes {
+            self.str_value.as_bytes().to_vec()
+        }
 
         #[ink(message)]
         pub fn send_message(&mut self, addr1: AccountId, addr2: AccountId, m: u8) {
@@ -362,112 +245,45 @@ mod flipper {
             }
             Ok(())
         }
-
-        /// Simply returns the current value of our `bool`.
-        #[ink(message)]
-        pub fn return_null_test(&mut self) {
-            return;
-        }
-
-        /// Simply returns the current value of our `bool`.
-        #[ink(message)]
-        pub fn get_str_value(& self) -> String {
-            self.str_value.clone()
-        }
-
-        /// Simply returns the current value of our `bool`.
-        #[ink(message)]
-        pub fn set_str_value(&mut self, value: String) {
-            self.str_value = value;
-        }
-
-        /// Simply returns the current value of our `bool`.
-        #[ink(message)]
-        pub fn enum_get(& self, e: Error) -> Result<(), Error> {
-            Err(e)
-        }
-
-        /// Simply returns the current value of our `bool`.
-        #[ink(message)]
-        pub fn option_get(& self, o: Option<u8>) -> Option<u8> {
-            o
-        }
-
-        #[ink(message)]
-        pub fn show_test_add(&mut self, v: ShowTest) {
-        }
-
-        #[ink(message)]
-        pub fn custom_vec_add(&mut self, v: DeriveTest) {
-            self.d_t.push(v);
-        }
-
-        #[ink(message)]
-        pub fn custom_vec_get(& self, i: u32) -> DeriveTest {
-            self.d_t[usize::try_from(i).unwrap()].clone()
-        }
-
-        #[ink(message)]
-        pub fn custom_vec_length(& self) -> u32 {
-            self.d_t.len() as u32
-        }
-
-        #[ink(message)]
-        pub fn string_to_bytes(& self, a: String) -> Bytes {
-            Bytes::from(a)
-        }
-
-        #[ink(message)]
-        pub fn emit_event(&mut self) {
-            let from = self.env().caller();
-
-            self.env().emit_event(Transferred {
-                // from: Some(from),
-                // to: Some(from),
-                // value: 10
-            });
         
-        }
-
-        /// Test
-        #[ink(message)]
-        pub fn set_bytes(&mut self, v: ink_prelude::vec::Vec<u8>) -> Result<(), ()> {
-            self.v = v;
-            Ok(())
-        }
-
-        /// Test
-        #[ink(message)]
-        pub fn set_map_bytes(&mut self, key: u8, v: ink_prelude::vec::Vec<u8>) -> Result<(), ()> {
-            self.v_map.insert(key, &v);
-            Ok(())
-        }
-
-        /// Test
-        #[ink(message)]
-        pub fn test_bytes(&mut self, session: Option<ink_prelude::vec::Vec<u8>>) -> Result<(), ()> {
-            self.ob = session;
-            Ok(())
-        }
-
-        /// Test
-        #[ink(message)]
-        pub fn test_u8_array(&mut self, session: Option<[u8; 4]>) -> Result<(), ()> {
-            Ok(())
-        }
         
+
         #[ink(message)]
-        pub fn get_bytes(&mut self) -> Option<ink_prelude::vec::Vec<u8>> {
-            struct AA {
-                a: u8
+        pub fn signatureVerify(&self, msg: ink_prelude::string::String, signature: [u8; 65], acct: AccountId)-> bool {
+            let mut msg_hash = <ink_env::hash::Sha2x256 as ink_env::hash::HashOutput>::Type::default();
+            ink_env::hash_bytes::<ink_env::hash::Sha2x256>(&msg.as_bytes(), &mut msg_hash);
+
+            let mut compressed_pubkey = [0; 33];
+            ink_env::ecdsa_recover(&signature, &msg_hash, &mut compressed_pubkey);
+
+            let mut addr_hash = <ink_env::hash::Blake2x256 as ink_env::hash::HashOutput>::Type::default();
+            ink_env::hash_encoded::<ink_env::hash::Blake2x256, _>(&compressed_pubkey, &mut addr_hash);
+
+            AccountId::from(addr_hash) == acct
+        }
+
+        #[ink(message)]
+        pub fn get_raw_data(&self) -> ink_prelude::vec::Vec<u8> {
+            let mut raw_buffer = ink_prelude::vec![];
+
+            let mut int32_vec = ink_prelude::vec![99 as i32, 88, 77];
+            for ele in int32_vec.iter_mut() {
+                raw_buffer.append(&mut ink_prelude::vec::Vec::from(ele.to_be_bytes()));
             }
-            self.ob.clone()
+
+            let some_str = ink_prelude::string::String::from("Hello Nika");
+            raw_buffer.append(&mut ink_prelude::vec::Vec::from(some_str.as_bytes()));
+
+            raw_buffer
         }
-        // #[ink(message)]
-        // pub fn get_message_mock(& self) -> u8 {
-        //     let i = 12;
-        //     i            
-        // }
+
+        #[ink(message)]
+        pub fn get_hash(& self, msg: ink_prelude::vec::Vec<u8>) -> [u8; 32] {
+            let mut ret = [0_u8; 32];
+            // ink_env::hash_bytes::<ink_env::hash::Sha2x256>(msg.as_slice(), &mut ret);
+            ink_env::hash_bytes::<ink_env::hash::Keccak256>(msg.as_slice(), &mut ret);
+            ret
+        }  
     }
 
     impl TestTrait for Flipper {
@@ -512,7 +328,7 @@ mod flipper {
             self.owner2 = Some(new_owner);
 
             Ok(())
-        }
+        }      
     }
 
     /// Unit tests in Rust are normally defined within such a `#[cfg(test)]`
@@ -530,9 +346,6 @@ mod flipper {
         #[ink::test]
         fn it_works() {
             let mut flipper = Flipper::new(false);
-            assert_eq!(flipper.get(), false);
-            flipper.flip();
-            assert_eq!(flipper.get(), true);
         }
 
         /// We test a simple use case of our contract.
@@ -547,6 +360,13 @@ mod flipper {
 
         fn set_caller(sender: AccountId) {
             ink_env::test::set_caller::<ink_env::DefaultEnvironment>(sender);
+        }
+
+        #[ink::test]
+        fn test_get_hash() {
+            let mut flipper = Flipper::new(false);
+            let ink_address = ink_prelude::vec![1, 2, 3];
+            println!("{:?}", flipper.get_hash(ink_address));
         }
     }
 }

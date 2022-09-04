@@ -1,3 +1,3 @@
 # The first homework
 
-![图片](https://user-images.githubusercontent.com/83948501/187653389-e897bd64-0b73-4fb9-bbca-fb22fa6e8f9f.png)
+![图片](https://user-images.githubusercontent.com/83948501/188304278-1327bbfa-87f0-4690-993d-3bbffb183f4d.png)

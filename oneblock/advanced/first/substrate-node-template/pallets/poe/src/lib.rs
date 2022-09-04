@@ -57,6 +57,7 @@ pub mod pallet {
 		OnlyOwnerCanRevoke,
 		NotAbleToTransferToSelf,
 		OnlyOwnerCanTransfer,
+		ClaimLengthError,
 	}
 
     #[pallet::hooks]
@@ -72,6 +73,8 @@ pub mod pallet {
 		#[pallet::weight(0)]
 		pub fn create_claim(origin: OriginFor<T>, claim: Vec<u8>) -> DispatchResult {
 			let sender = ensure_signed(origin)?;
+
+			ensure!(claim.len() == 8, Error::<T>::ClaimLengthError);
 
             // Check if the claim exists.
             ensure!(!Proofs::<T>::contains_key(&claim), Error::<T>::ClaimAlreadyExist);

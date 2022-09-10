@@ -1,4 +1,4 @@
-use crate as pallet_poe;
+use crate as pallet_kitties;
 use frame_support::parameter_types;
 use frame_system as system;
 use sp_core::H256;
@@ -18,7 +18,7 @@ frame_support::construct_runtime!(
 		UncheckedExtrinsic = UncheckedExtrinsic,
 	{
 		System: frame_system::{Pallet, Call, Config, Storage, Event<T>},
-		PoeModule: pallet_poe::{Pallet, Call, Storage, Event<T>},
+		KittiesModule: pallet_kitties::{Pallet, Call, Storage, Event<T>},
 	}
 );
 
@@ -53,7 +53,7 @@ impl system::Config for Test {
 	type OnSetCode = ();
 }
 
-impl pallet_poe::Config for Test {
+impl pallet_kitties::Config for Test {
 	type Event = Event;
 }
 

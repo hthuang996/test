@@ -13,8 +13,22 @@ mod tests;
 pub mod pallet {    
 	use frame_support::pallet_prelude::*;
 	use frame_system::pallet_prelude::*;
-	use frame_support::traits::Randomness;
+	use frame_support::traits::{
+		ExistenceRequirement,
+		Currency,
+		Randomness,
+		tokens::fungible::Transfer,
+	};
 	use sp_io::hashing::blake2_128;
+	use sp_std::{cmp, fmt::Debug, mem, ops::BitOr, prelude::*, result};
+	use codec::{Codec, Decode, Encode, MaxEncodedLen};
+	use sp_runtime::{
+		traits::{
+			AtLeast32BitUnsigned, Bounded, CheckedAdd, CheckedSub, MaybeSerializeDeserialize,
+			Saturating, StaticLookup, Zero,
+		},
+		ArithmeticError, DispatchError, RuntimeDebug,
+	};
 
 	type KittyIndex = u32;
 
@@ -32,6 +46,17 @@ pub mod pallet {
 		/// Because this pallet emits events, it depends on the runtime's definition of an event.
 		type Event: From<Event<Self>> + IsType<<Self as frame_system::Config>::Event>;
 		type Randomness: Randomness<Self::Hash, Self::BlockNumber>;
+		type Balance: Parameter
+			+ Member
+			+ AtLeast32BitUnsigned
+			+ Codec
+			+ Default
+			+ Copy
+			+ MaybeSerializeDeserialize
+			+ Debug
+			+ MaxEncodedLen
+			+ TypeInfo;
+		type Balances: Currency<Self::AccountId>;
 	}
 
     #[pallet::pallet]
@@ -54,6 +79,10 @@ pub mod pallet {
 	#[pallet::getter(fn kitty_owner)]
 	pub type KittyOwner<T:Config> = StorageMap<_, Blake2_128Concat, KittyIndex, T::AccountId>;
 
+	#[pallet::storage]
+	#[pallet::getter(fn orders)]
+	pub type Orders<T:Config> = StorageMap<_, Blake2_128Concat, KittyIndex, T::Balance>;
+
     // Pallets use events to inform users when important changes are made.
 	// https://docs.substrate.io/v3/runtime/events-and-errors
 	#[pallet::event]
@@ -73,6 +102,7 @@ pub mod pallet {
 		InvalidKittyId,
 		SameKittyId,
 		NotOwner,
+		InvalidOrder,
 	}
 
     #[pallet::hooks]
@@ -140,6 +170,31 @@ pub mod pallet {
 
 			Ok(())
 		}
+
+		#[pallet::weight(10_000)]
+		pub fn sell_kitty(origin: OriginFor<T>, kitty_id: KittyIndex, price: T::Balance) -> DispatchResult {
+			let sender = ensure_signed(origin)?;
+
+			Self::get_kitty(kitty_id).map_err(|_| Error::<T>::InvalidKittyId)?;
+			
+			ensure!(Some(sender.clone()) == Self::kitty_owner(kitty_id), Error::<T>::NotOwner);
+
+			Orders::<T>::insert(kitty_id, price);
+
+			Ok(())
+		}
+
+		#[pallet::weight(10_000)]
+		pub fn buy_kitty(origin: OriginFor<T>, kitty_id: KittyIndex) -> DispatchResult {
+			let sender = ensure_signed(origin)?;
+
+			let price = Self::get_order(kitty_id).map_err(|_| Error::<T>::InvalidOrder)?;
+			let owner = Self::kitty_owner(kitty_id).unwrap();
+
+			// T::Balances::transfer(&sender, &owner, price, ExistenceRequirement::KeepAlive);
+
+			Ok(())
+		}
 	}
 
 	impl<T: Config> Pallet<T> {
@@ -165,6 +220,13 @@ pub mod pallet {
 			match Self::kitties(kitty_id) {
 				Some(kitty) => Ok(kitty),
 				None => Err(()),
+			}
+		}
+
+		fn get_order(kitty_id: KittyIndex) -> Result<T::Balance, ()> {
+			match Self::orders(kitty_id) {
+				Some(price) => Ok(price),
+				None => Err(())
 			}
 		}
 	}

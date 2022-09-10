@@ -12,6 +12,12 @@ repository = 'https://github.com/substrate-developer-hub/substrate-node-template
 [package.metadata.docs.rs]
 targets = ['x86_64-unknown-linux-gnu']
 
+[dependencies.sp-runtime]
+git = 'https://github.com/paritytech/substrate.git'
+tag = 'monthly-2021-12'
+version = "4.0.0-dev"
+default-features = false
+
 [dependencies.num]
 default-features = false
 version = '0.4'

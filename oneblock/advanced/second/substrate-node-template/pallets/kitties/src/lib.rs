@@ -216,9 +216,12 @@ pub mod pallet {
 
 		fn get_next_id() -> Result<T::KittyIndex, ()> {
 			let max = T::KittyIndex::max_value();
-			match Self::next_kitty_id() {
-				max => Err(()),
-				val => Ok(val),
+			let next_id: T::KittyIndex = Self::next_kitty_id();
+			if max == next_id {
+				Err(())
+			}
+			else {
+				Ok(next_id)
 			}
 		}
 

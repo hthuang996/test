@@ -55,6 +55,11 @@ impl system::Config for Test {
 
 impl pallet_kitties::Config for Test {
 	type Event = Event;
+	type Randomness = RandomnessCollectiveFlip;
+	type Balances = Balances;
+	type KittyIndex = u32;
+	type MaxKittyOwned = MaxKittyOwned;
+	type ReserveBalance = ReserveBalance;
 }
 
 // Build genesis storage according to the mock runtime.

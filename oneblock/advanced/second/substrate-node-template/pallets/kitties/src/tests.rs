@@ -22,7 +22,7 @@ fn it_fails_for_breed_claim_with_not_owner() {
 
 #[test]
 fn it_fails_for_breed_with_same_kitty_id() {
-    new_test_ext().execute_with(|| {
+    new_test_ext().execute_with(|| {        
         assert_ok!(KittiesModule::create(Origin::signed(1)));
         assert_ok!(KittiesModule::create(Origin::signed(1)));
         assert_noop!(KittiesModule::breed(Origin::signed(1), 1, 1), Error::<Test>::SameKittyId);

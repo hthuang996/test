@@ -20,6 +20,7 @@ pub mod pallet {
 		Randomness,
 		tokens::fungible::Transfer,
 	};
+	use frame_support::transactional;
 	use sp_io::hashing::blake2_128;
 	use sp_std::{cmp, fmt::Debug, mem, ops::BitOr, prelude::*, result};
 	use codec::{Codec, Decode, Encode, MaxEncodedLen};
@@ -126,6 +127,7 @@ pub mod pallet {
 	#[pallet::call]
 	impl<T: Config> Pallet<T> {
 		#[pallet::weight(10_000)]
+		#[transactional]
 		pub fn create(origin: OriginFor<T>) -> DispatchResult {
 			let sender = ensure_signed(origin)?;
 			let kitty_id = Self::get_next_id().map_err(|_| Error::<T>::InvalidKittyId)?;
@@ -139,16 +141,17 @@ pub mod pallet {
 		}
 
 		#[pallet::weight(10_000)]
+		#[transactional]
 		pub fn breed(origin: OriginFor<T>, kitty_id_1: T::KittyIndex, kitty_id_2: T::KittyIndex) -> DispatchResult {
 			let sender = ensure_signed(origin)?;
 
 			ensure!(kitty_id_1 != kitty_id_2, Error::<T>::SameKittyId);
 
-			ensure!(Some(sender.clone()) == Self::kitty_owner(kitty_id_1), Error::<T>::NotOwner);
-			ensure!(Some(sender.clone()) == Self::kitty_owner(kitty_id_2), Error::<T>::NotOwner);
-
 			let kitty_1 = Self::get_kitty(kitty_id_1).map_err(|_| Error::<T>::InvalidKittyId)?;
 			let kitty_2 = Self::get_kitty(kitty_id_2).map_err(|_| Error::<T>::InvalidKittyId)?;
+
+			ensure!(Some(sender.clone()) == Self::kitty_owner(kitty_id_1), Error::<T>::NotOwner);
+			ensure!(Some(sender.clone()) == Self::kitty_owner(kitty_id_2), Error::<T>::NotOwner);
 
 			let kitty_id = Self::get_next_id().map_err(|_| Error::<T>::InvalidKittyId)?;
 
@@ -163,6 +166,7 @@ pub mod pallet {
 		}
 
 		#[pallet::weight(10_000)]
+		#[transactional]
 		pub fn transfer(origin: OriginFor<T>, kitty_id: T::KittyIndex, new_owner: T::AccountId) -> DispatchResult {
 			let sender = ensure_signed(origin)?;
 			
@@ -176,6 +180,7 @@ pub mod pallet {
 		}
 
 		#[pallet::weight(10_000)]
+		#[transactional]
 		pub fn sell_kitty(origin: OriginFor<T>, kitty_id: T::KittyIndex, price: BalanceOf<T>) -> DispatchResult {
 			let sender = ensure_signed(origin)?;
 
@@ -189,6 +194,7 @@ pub mod pallet {
 		}
 
 		#[pallet::weight(10_000)]
+		#[transactional]
 		pub fn buy_kitty(origin: OriginFor<T>, kitty_id: T::KittyIndex) -> DispatchResult {
 			let sender = ensure_signed(origin)?;
 

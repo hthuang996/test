@@ -92,8 +92,8 @@ impl pallet_kitties::Config for Test {
 pub fn new_test_ext() -> sp_io::TestExternalities {
 	let mut t: sp_runtime::Storage = system::GenesisConfig::default().build_storage::<Test>().unwrap();
 	pallet_balances::GenesisConfig::<Test> {
-		balance: vec! [
-			(1, 10000),
+		balances: vec! [
+			(1, 1024),
 			(2, 10000),
 		],
 	}

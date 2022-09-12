@@ -12,18 +12,34 @@ fn it_works_for_create_kitty() {
 }
 
 #[test]
-fn it_fails_for_breed_claim_with_not_owner() {
+fn it_fails_for_create_kitty_with_reserve_failed() {
+    new_test_ext().execute_with(|| {
+        // Dispatch a signed extrinsic.
+        assert_noop!(KittiesModule::create(Origin::signed(3)), Error::<Test>::ReserveFailed);
+    });
+}
+
+#[test]
+fn it_fails_for_breed_with_not_owner() {
     new_test_ext().execute_with(|| {
         assert_ok!(KittiesModule::create(Origin::signed(1)));
         assert_ok!(KittiesModule::create(Origin::signed(1)));
-        assert_noop!(KittiesModule::breed(Origin::signed(2), 1, 2), Error::<Test>::NotOwner);
+        assert_noop!(KittiesModule::breed(Origin::signed(2), 0, 1), Error::<Test>::NotOwner);
+    });
+}
+
+#[test]
+fn it_fails_for_breed_with_reserver_failed() {
+    new_test_ext().execute_with(|| {
+        assert_ok!(KittiesModule::create(Origin::signed(1)));
+        assert_ok!(KittiesModule::create(Origin::signed(1)));
+        assert_noop!(KittiesModule::breed(Origin::signed(1), 0, 1), Error::<Test>::ReserveFailed);
     });
 }
 
 #[test]
 fn it_fails_for_breed_with_same_kitty_id() {
     new_test_ext().execute_with(|| {        
-        assert_ok!(KittiesModule::create(Origin::signed(1)));
         assert_ok!(KittiesModule::create(Origin::signed(1)));
         assert_noop!(KittiesModule::breed(Origin::signed(1), 1, 1), Error::<Test>::SameKittyId);
     });
@@ -39,16 +55,9 @@ fn it_fails_for_breed_with_invalid_kitty_id() {
 #[test]
 fn it_works_for_breed() {
     new_test_ext().execute_with(|| {
-        assert_ok!(KittiesModule::create(Origin::signed(1)));
-        assert_ok!(KittiesModule::create(Origin::signed(1)));
-        assert_ok!(KittiesModule::breed(Origin::signed(1), 1, 2));
-    });
-}
-
-#[test]
-fn it_fails_for_transfer_with_invalid_kitty_id() {
-    new_test_ext().execute_with(|| {
-        assert_noop!(KittiesModule::transfer(Origin::signed(1), 1, 2), Error::<Test>::InvalidKittyId);
+        assert_ok!(KittiesModule::create(Origin::signed(2)));
+        assert_ok!(KittiesModule::create(Origin::signed(2)));
+        assert_ok!(KittiesModule::breed(Origin::signed(2), 0, 1));
     });
 }
 
@@ -56,7 +65,15 @@ fn it_fails_for_transfer_with_invalid_kitty_id() {
 fn it_fails_for_transfer_with_not_owner() {
     new_test_ext().execute_with(|| {
         assert_ok!(KittiesModule::create(Origin::signed(1)));
-        assert_noop!(KittiesModule::transfer(Origin::signed(2), 1, 3), Error::<Test>::InvalidKittyId);
+        assert_noop!(KittiesModule::transfer(Origin::signed(2), 0, 3), Error::<Test>::NotOwner);
+    });
+}
+
+#[test]
+fn it_fails_for_transfer_with_reserve_failed() {
+    new_test_ext().execute_with(|| {
+        assert_ok!(KittiesModule::create(Origin::signed(1)));
+        assert_noop!(KittiesModule::transfer(Origin::signed(1), 0, 3), Error::<Test>::ReserveFailed);
     });
 }
 
@@ -64,6 +81,6 @@ fn it_fails_for_transfer_with_not_owner() {
 fn it_works_for_transfer() {
     new_test_ext().execute_with(|| {
         assert_ok!(KittiesModule::create(Origin::signed(1)));
-        assert_noop!(KittiesModule::transfer(Origin::signed(1), 1, 2), Error::<Test>::InvalidKittyId);
+        assert_ok!(KittiesModule::transfer(Origin::signed(1), 0, 2));
     });
 }

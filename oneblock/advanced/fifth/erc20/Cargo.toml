@@ -8,8 +8,8 @@ publish = false
 [dependencies]
 ink = { version = "4.0.0-alpha.3", default-features = false }
 
-scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
-scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
+scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive", "full"] }
+scale-info = { version = "2", default-features = false, features = ["derive"] }
 
 [lib]
 name = "erc20"

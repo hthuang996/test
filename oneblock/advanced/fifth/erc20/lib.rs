@@ -3,7 +3,7 @@
 #[ink::contract]
 mod erc20 {
     use ink::storage::Mapping;
-    // use ink::prelude::string;
+    use ink::prelude::string::String;
 
     /// A simple ERC-20 contract.
     #[ink(storage)]

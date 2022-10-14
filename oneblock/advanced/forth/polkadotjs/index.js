@@ -10,8 +10,8 @@ async function queryLocalStorage(blockNumber) {
     // let key = Buffer.concat([Buffer.from('node-template::storage::'), Buffer.from(bnU32Array.buffer)]);
     let key = Buffer.from(bnU32Array.buffer).toString('hex');
     console.log('key', key);
-    let value = api.rpc.offchain.localStorageGet('PERSISTENT', key);
-    console.log('value', value);
+    let value = await api.rpc.offchain.localStorageGet('PERSISTENT', '0x' + key);
+    console.log('value', value.toHuman());
 }
 
 queryLocalStorage(666)

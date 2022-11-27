@@ -1,0 +1,42 @@
+"Asm.fif" include
+// automatically generated from `counter.merged.fc` 
+PROGRAM{
+  DECLPROC load_data
+  DECLPROC save_data
+  DECLPROC recv_internal
+  104984 DECLMETHOD counter
+  load_data PROC:<{
+    // 
+    c4 PUSH	//  _1
+    CTOS	//  ds
+    64 LDU	//  _7 _6
+    DROP	//  _3
+  }>
+  save_data PROC:<{
+    //  counter
+    NEWC	//  counter _1
+    64 STU	//  _3
+    ENDC	//  _4
+    c4 POP
+  }>
+  recv_internal PROC:<{
+    //  msg_value in_msg in_msg_body
+    2 1 BLKDROP2	//  in_msg_body
+    32 LDU	//  _15 _14
+    DROP	//  op
+    load_data INLINECALLDICT	//  op counter
+    SWAP	//  counter op
+    1 EQINT	//  counter _10
+    IF:<{	//  counter
+      INC	//  _12
+      save_data INLINECALLDICT
+    }>ELSE<{
+      DROP	// 
+    }>
+  }>
+  counter PROC:<{
+    // 
+    load_data INLINECALLDICT	//  counter
+  }>
+}END>c
+boc>B "counter.cell" B>file

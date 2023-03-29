@@ -64,7 +64,7 @@ default-features = false
 features = ['derive']
 version = '1.0'
 
-[dev-dependencies.sp-core]
+[dependencies.sp-core]
 default-features = false
 git = 'https://github.com/paritytech/substrate.git'
 tag = 'monthly-2021-12'

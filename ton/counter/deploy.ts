@@ -1,4 +1,4 @@
-import { SendMode, InternalMessage, toNano, CommonMessageInfo, CellMessage, StateInit } from "ton";
+import { SendMode, InternalMessage, toNano, CommonMessageInfo, CellMessage, StateInit, Address } from "ton";
 import { mnemonicToWalletKey } from "ton-crypto";
 import { TonClient, WalletContract, WalletV3R2Source } from "ton";
 import { beginCell } from "ton";
@@ -25,6 +25,7 @@ async function main() {
     initCodeCell = Cell.fromBoc(fs.readFileSync("counter.cell"))[0]; // compilation output from step 5
     
     newContractAddress = contractAddress({ workchain: 0, initialData: initDataCell, initialCode: initCodeCell });
+    // newContractAddress = Address.parse('EQC-QTihJV_B4f8M2nynateMLynaRT_uwNYnnuyy87kam-G7');
     console.log("newContractAddress", newContractAddress);
 }
 
@@ -67,6 +68,7 @@ function initData() {
 }
 
 async function deploy() {
+  await main();
   const seqno = await wallet.getSeqNo(); // get the next seqno of our wallet
   
   const transfer = wallet.createTransfer({

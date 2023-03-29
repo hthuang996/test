@@ -410,6 +410,16 @@ impl_runtime_apis! {
 		}
 	}
 
+	impl sum_storage_runtime_api::SumStorageApi<Block> for Runtime {
+		fn get_sum() -> u32 {
+			// This Runtime API calls into a specific pallet. Calling a pallet is a common
+			// design pattern. You can see most other APIs in this file do the same.
+			// It is also possible to write your logic right here in the runtime
+			// amalgamator file
+			KittiesModule::get_sum()
+		}
+	}
+
 	impl sp_session::SessionKeys<Block> for Runtime {
 		fn generate_session_keys(seed: Option<Vec<u8>>) -> Vec<u8> {
 			opaque::SessionKeys::generate(seed)

@@ -1,8 +1,9 @@
 "Asm.fif" include
-// automatically generated from `counter.merged.fc` 
+// automatically generated from `counter.fc` incl:`stdlib.fc` 
 PROGRAM{
   DECLPROC load_data
   DECLPROC save_data
+  DECLPROC test1
   DECLPROC recv_internal
   104984 DECLMETHOD counter
   load_data PROC:<{
@@ -19,19 +20,23 @@ PROGRAM{
     ENDC	//  _4
     c4 POP
   }>
+  test1 PROC:<{
+    // 
+  }>
   recv_internal PROC:<{
     //  msg_value in_msg in_msg_body
     2 1 BLKDROP2	//  in_msg_body
-    32 LDU	//  _15 _14
+    32 LDU	//  _16 _15
     DROP	//  op
     load_data INLINECALLDICT	//  op counter
     SWAP	//  counter op
     1 EQINT	//  counter _10
     IF:<{	//  counter
-      INC	//  _12
-      save_data INLINECALLDICT
-    }>ELSE<{
       DROP	// 
+      test1 CALLDICT
+    }>ELSE<{	//  counter
+      INC	//  _13
+      save_data INLINECALLDICT
     }>
   }>
   counter PROC:<{
@@ -39,4 +44,3 @@ PROGRAM{
     load_data INLINECALLDICT	//  counter
   }>
 }END>c
-boc>B "counter.cell" B>file

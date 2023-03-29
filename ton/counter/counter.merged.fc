@@ -220,7 +220,7 @@ int set_seed() impure asm "SETRAND";
     int op = in_msg_body~load_uint(32);
     var (counter) = load_data();
     if (op == 1) {
-        save_data(counter + 1);
+        ;; save_data(counter + 1);
     }
 }
 

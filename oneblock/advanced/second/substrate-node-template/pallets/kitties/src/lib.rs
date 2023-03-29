@@ -21,13 +21,14 @@ pub mod pallet {
 		tokens::fungible::Transfer,
 	};
 	use frame_support::transactional;
+	use sp_core::{Hasher};
 	use sp_io::hashing::blake2_128;
 	use sp_std::{cmp, fmt::Debug, mem, ops::BitOr, prelude::*, result};
 	use codec::{Codec, Decode, Encode, MaxEncodedLen};
 	use sp_runtime::{
 		traits::{
 			AtLeast32BitUnsigned, AtLeast32Bit, Bounded, CheckedAdd, CheckedSub, MaybeSerializeDeserialize,
-			Saturating, StaticLookup, Zero,
+			Saturating, StaticLookup, Zero, Keccak256
 		},
 		ArithmeticError, DispatchError, RuntimeDebug,
 	};
@@ -204,6 +205,8 @@ pub mod pallet {
 			// T::Balances::transfer(&sender, &owner, price, ExistenceRequirement::KeepAlive);
 			// T::Balances::reserve(&sender, price)?;
 
+			let a = Keccak256::hash(b"asdf");
+
 			Ok(())
 		}
 	}
@@ -288,6 +291,10 @@ pub mod pallet {
 			T::Balances::reserve(&to, T::ReserveBalance::get()).map_err(|_| Error::<T>::ReserveFailed)?;
 
 			Ok(())
+		}
+
+		pub fn get_sum() -> u32 {
+			888_u32
 		}
 	}
 }

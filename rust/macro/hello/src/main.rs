@@ -11,5 +11,7 @@ struct Pancakes;
 // }
 
 fn main() {
-    Pancakes::hello_macro();
+    // Pancakes::hello_macro();
+    let v = vec![1,2,3];
+    println!("{:?}", v);
 }
